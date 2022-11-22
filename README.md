@@ -12,6 +12,8 @@ npm i
 
 
 ### Create seed file
+_Seed -> Ids -> Input_
+
 ```bash
 # Create a recipe files of 1GB
 npm run seed -- 1
@@ -26,7 +28,7 @@ npm run seed -- 0.2
 # Process file using the buffer solution
 npm run start -- buffer
 
-# Process file using the streams solution
+# Process file using the stream solution
 npm run start -- stream
 ```
 

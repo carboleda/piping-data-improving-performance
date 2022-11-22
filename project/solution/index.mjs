@@ -6,16 +6,18 @@
 //    Product id, Product name, Calories
 
 import fs from 'node:fs/promises';
-import { SolutionType } from './common.js';
+import { createProgressBar, FileName, SolutionType } from '../common.mjs';
 import * as buffer from './buffer/index.mjs';
 import * as stream from './stream/index.mjs';
 
 (async () => {
   const [type = SolutionType.Buffer] = process.argv.slice(2);
   const solution = getSolution(type);
+  const progressBar = await createProgressBar();
 
   console.time('Run');
   await deleteOutFile();
+  solution.events.on('read', progressBar.update);
   await solution.exec();
   console.timeEnd('Run');
 
@@ -37,6 +39,6 @@ function getSolution(type) {
 
 async function deleteOutFile() {
   try {
-    await fs.unlink('data/out.csv');
+    await fs.unlink(FileName.Output);
   } catch (error) {}
 }

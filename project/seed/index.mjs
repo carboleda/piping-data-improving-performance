@@ -3,6 +3,7 @@ const require = module.createRequire(import.meta.url);
 import { createReadStream, createWriteStream } from 'node:fs';
 import { stat, unlink } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
+import { FileName } from '../common.mjs';
 const { split } = require('event-stream');
 
 const [targetSizeInGb = 2] = process.argv.slice(2);
@@ -42,15 +43,15 @@ function getCreateRecipes() {
 
 async function createIdsFile() {
   await pipeline(
-    createReadStream('data/products.csv'),
+    createReadStream(FileName.Seed),
     split(),
     extractIds,
-    createWriteStream('data/ids.csv')
+    createWriteStream(FileName.Ids)
   );
 }
 
 async function createBigFile() {
-  const fileSize = (await stat('data/ids.csv')).size;
+  const fileSize = (await stat(FileName.Ids)).size;
   const iterations = Math.ceil(
     (targetSizeInGb * GB_IN_BYTES) / (fileSize * 1.2)
   );
@@ -59,20 +60,20 @@ async function createBigFile() {
 
   for (let i = 0; i < iterations; i++) {
     await pipeline(
-      createReadStream('data/ids.csv'),
+      createReadStream(FileName.Ids),
       split(),
       createRecipes,
-      createWriteStream('data/recipes.csv', { flags: 'a' })
+      createWriteStream(FileName.Input, { flags: 'a' })
     );
   }
 }
 
 (async () => {
-  await unlink('data/recipes.csv').catch(() =>
+  await unlink(FileName.Input).catch(() =>
     console.warn('There is not previous file to delete')
   );
   await createIdsFile();
   await createBigFile();
-  await unlink('data/ids.csv');
+  await unlink(FileName.Ids);
   console.log('Done!');
 })();

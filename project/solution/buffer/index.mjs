@@ -1,8 +1,11 @@
 import fs from 'node:fs/promises';
-import { getProduct, isRecipe } from '../common';
+import EventEmitter from 'node:events';
+import { FileName, getProduct, isRecipe } from '../../common.mjs';
+
+export const events = new EventEmitter();
 
 export const exec = async () => {
-  const content = await fs.readFile('data/recipes.csv', 'utf8');
+  const content = await fs.readFile(FileName.Input, 'utf8');
   const lines = content.split('\n');
 
   await processLines(lines);
@@ -13,6 +16,8 @@ async function processLines(lines) {
   let products = [];
 
   for await (const line of lines) {
+    events.emit('read', line.length);
+
     if (!isRecipe(line)) {
       const product = await getProduct(line);
       products.push(product);
@@ -43,7 +48,7 @@ async function processRecipe(currentRecipe, products) {
   const recipe = `${currentRecipe},${totalCalories},
   ${plainProducts.join('\n')}\n`;
 
-  fs.writeFile('data/out.csv', recipe, {
+  fs.writeFile(FileName.Output, recipe, {
     flag: 'a',
   });
 }
