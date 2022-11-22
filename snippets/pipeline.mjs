@@ -1,15 +1,15 @@
-const { Transform } = require('node:stream');
+import { pipeline, Transform } from 'node:stream';
 
 const upperCase = new Transform({
   transform(chunk, encoding, callback) {
     callback(null, chunk.toString().toUpperCase());
-  }
+  },
 });
 
-process.stdin
-  .pipe(upperCase)
-  .pipe(process.stdout);
+pipeline(process.stdin, upperCase, process.stdout, (error) =>
+  console.error(error)
+);
 
-// $ node pipe.js
+// $ node pipeline.js
 // Hello gdg Cali
 // HELLO GDG CALI
