@@ -11,7 +11,7 @@ npm i
 ```
 
 
-### Create seed file
+### Create input file from seed
 _Seed -> Ids -> Input_
 
 ```bash
